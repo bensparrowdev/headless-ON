@@ -1,6 +1,6 @@
 import type { MetaFunction } from '@remix-run/node';
 import { json, useLoaderData } from '@remix-run/react';
-import { gql } from '~/utils/shopify';
+import { gql } from '~/utils/shopify-client';
 
 export const meta: MetaFunction = () => {
   return [
@@ -11,7 +11,7 @@ export const meta: MetaFunction = () => {
 
 export const loader = async () => {
   const data = await gql(`
-    query {
+   {
       shop {
         name
       }
