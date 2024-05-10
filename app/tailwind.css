@@ -2,35 +2,45 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Setting base styles */
+/* Custom Base Styles */
 @layer base {
+  html,
+  body,
+  main {
+    @apply font-oswald;
+  }
+
   h1 {
-    @apply text-5xl font-extrabold;
+    @apply text-6xl font-extrabold uppercase;
   }
 
   h2 {
-    @apply text-4xl font-bold;
+    @apply text-5xl font-bold uppercase;
   }
 
   h3 {
-    @apply text-3xl font-bold;
+    @apply text-4xl font-bold uppercase;
   }
 
   h4 {
-    @apply text-2xl font-bold;
+    @apply text-3xl font-bold uppercase;
   }
 
   h5 {
-    @apply text-xl font-bold;
+    @apply text-2xl font-bold uppercase;
   }
 
   h6 {
-    @apply text-lg font-bold;
+    @apply text-xl font-bold uppercase;
   }
 
   p {
   }
 
   a {
+  }
+
+  small {
+    @apply text-base font-light;
   }
 }

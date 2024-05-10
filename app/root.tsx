@@ -23,7 +23,14 @@ export const links: LinksFunction = () => [
 export const loader = async () => {
   const data = await gql(`
    {
-      menu(handle: "main-menu") {
+      header: menu(handle: "main-menu") {
+        items {
+          id
+          title
+          url
+        }
+      }
+      footer: menu(handle: "footer") {
         items {
           id
           title
@@ -54,9 +61,9 @@ export function Layout({ children }: { children: React.ReactNode }) {
           countryIsoCode="GB"
           languageIsoCode="EN"
         >
-          <Header menu={data.menu} />
+          <Header menu={data.header} />
           {children}
-          <Footer />
+          <Footer menu={data.footer} />
           <ScrollRestoration />
           <Scripts />
         </ShopifyProvider>
