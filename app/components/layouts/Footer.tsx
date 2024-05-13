@@ -41,7 +41,8 @@ export default function Footer({ menu }: MenuProp) {
       </div>
       <ul className="flex flex-wrap gap-5 pt-10 uppercase">
         {menu.items.map((item) => (
-          <li key={item.id}>
+          <li key={item.id} className="relative group/li">
+            <span className="absolute opacity-0 h-[2px] w-0 bg-black group-hover/li:w-full group-hover/li:opacity-100 transition-all duration-300"></span>
             <NavLink to={item.url}>{item.title}</NavLink>
           </li>
         ))}
