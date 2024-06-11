@@ -5,8 +5,12 @@ import { gql } from '~/utils/shopify-client';
 
 export const meta: MetaFunction = () => {
   return [
-    { title: 'Optimum Nutrition' },
-    { name: 'description', content: 'Welcome to Remix!' },
+    { title: 'Optimum Nutrition | Homepage' },
+    {
+      name: 'description',
+      content:
+        'This is the optimum nutrition website built with headless Shopify',
+    },
   ];
 };
 
@@ -31,7 +35,7 @@ export default function Index() {
   return (
     <main>
       <section className="relative">
-        <div className="h-[900px]">
+        <div className="h-[720px] lg:h-[850px]">
           <img
             src={`${heroImage}width=768`}
             alt="man walking into gym with optimum nutrition logo in the center"
@@ -41,7 +45,7 @@ export default function Index() {
           />
           <div className="absolute top-0 left-0 w-full h-full bg-black bg-opacity-15"></div>
         </div>
-        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-3/4 h-4/5 flex flex-col justify-end items-start">
+        <div className="absolute bottom-24 lg:top-0 left-1/2 -translate-x-1/2 w-3/4 h-4/5 flex flex-col justify-end items-start">
           <p className="text-white uppercase text-sm">Shop our latest range</p>
           <h1 className="text-white py-4 mb-12">
             Setting the gold standard <br />

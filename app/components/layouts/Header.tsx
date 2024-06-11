@@ -1,3 +1,4 @@
+import { Fragment, useState } from 'react';
 import { NavLink } from '@remix-run/react';
 import {
   MdAccountCircle,
@@ -5,28 +6,25 @@ import {
   MdOutlineShoppingBag,
   MdClose,
   MdChevronRight,
+  MdArrowDropDown,
 } from 'react-icons/md';
 import { RiMenu4Fill } from 'react-icons/ri';
 import SideDrawer from '../SideDrawer';
-import { useState } from 'react';
+import type {
+  Menu,
+  MenuItem,
+} from '@shopify/hydrogen-react/storefront-api-types';
 
-interface MenuItem {
-  items: {
-    id: string;
-    title: string;
-    url: string;
-  }[];
-}
-
-interface MenuProp {
-  menu: MenuItem;
-}
-
-export default function Header({ menu }: MenuProp) {
-  const [openMobileMenu, setOpenMobileMenu] = useState(true);
+export default function Header({ menu }: { menu: Menu }) {
+  const [openMobileMenu, setOpenMobileMenu] = useState<boolean>(false);
+  const [isItemOpen, setIsItemOpen] = useState<boolean>(false);
 
   const handleMenuOpen = () => {
     setOpenMobileMenu((openMobileMenu) => !openMobileMenu);
+  };
+
+  const toggleItemOpen = () => {
+    setIsItemOpen((isItemOpen) => !isItemOpen);
   };
 
   return (
@@ -34,9 +32,9 @@ export default function Header({ menu }: MenuProp) {
       <div className="w-full text-center p-2 bg-black text-white">
         <small>Free shipping on orders over £50</small>
       </div>
-      <nav className="w-full text-white group hover:bg-white hover:text-black transition-all duration-300">
+      <nav className="relative w-full text-white group hover:bg-white hover:text-black transition-all duration-300">
         <div className="container grid grid-cols-[1fr_200px_1fr] gap-x-4 items-center px-5">
-          <ul className="flex flex-wrap gap-x-4 gap-y-2 items-center justify-start">
+          <ul className="flex h-full gap-x-4 gap-y-2 items-center justify-start">
             <li className="lg:hidden">
               <RiMenu4Fill
                 size={30}
@@ -44,15 +42,26 @@ export default function Header({ menu }: MenuProp) {
                 onClick={handleMenuOpen}
               />
             </li>
-            {menu.items.map((item) => (
-              <li
-                key={item.id}
-                className="hidden lg:block relative uppercase group/li"
-              >
-                <span className="absolute -top-1 opacity-0 h-[2px] w-0 bg-black group-hover/li:w-full group-hover/li:opacity-100 transition-all duration-300"></span>
-                <NavLink to={item.url}>{item.title}</NavLink>
-              </li>
-            ))}
+            {menu.items.map(
+              ({ id, url, title, items }) =>
+                url && (
+                  <Fragment key={id}>
+                    <li className="hidden lg:flex items-center relative uppercase h-full group/li peer">
+                      <span className="absolute top-8 opacity-0 h-[2px] w-0 bg-black group-hover/li:w-full group-hover/li:opacity-100 transition-all duration-300 ease-in-out"></span>
+                      <NavLink
+                        to={url.split('.com')[1]}
+                        className="inline-flex items-center"
+                      >
+                        {title}
+                        {items.length ? (
+                          <MdArrowDropDown size={20} className="ml-auto" />
+                        ) : null}
+                      </NavLink>
+                    </li>
+                    {items.length > 0 && <MegaNav menuChildItems={items} />}
+                  </Fragment>
+                )
+            )}
           </ul>
 
           <NavLink to="/" className="my-8">
@@ -87,18 +96,57 @@ export default function Header({ menu }: MenuProp) {
             }`}
           />
         </div>
+        {/* Mobile Menu */}
         <ul className="flex flex-col gap-y-4 pb-8 border-b">
-          {menu.items.map((item) => (
-            <li key={item.id} className="uppercase">
-              <NavLink
-                to={item.url}
-                className="flex items-center font-medium text-3xl"
-              >
-                {item.title}
-                <MdChevronRight size={30} className="ml-auto" />
-              </NavLink>
-            </li>
-          ))}
+          {menu.items.map(
+            ({ id, url, title, items }) =>
+              url && (
+                <li key={id} className="uppercase relative">
+                  {items.length > 0 ? (
+                    <button
+                      className="flex items-center w-full uppercase font-medium text-3xl z-10"
+                      onClick={toggleItemOpen}
+                    >
+                      {title}
+                      <MdArrowDropDown
+                        size={30}
+                        className={`ml-auto ${isItemOpen && 'rotate-180'}`}
+                      />
+                    </button>
+                  ) : (
+                    <NavLink
+                      to={url.split('.com')[1]}
+                      className="flex items-center font-medium text-3xl"
+                    >
+                      {title}
+                      <MdChevronRight size={30} className="ml-auto" />
+                    </NavLink>
+                  )}
+
+                  {items.length > 0 && (
+                    <ul
+                      className={`relative flex flex-col z-0 gap-y-2 w-5/6 overflow-hidden transition-all ease-in-out ${
+                        isItemOpen ? 'h-fit max-h-60 pt-2' : 'h-0 max-h-0'
+                      }`}
+                    >
+                      {items.map(
+                        ({ id, url, title }) =>
+                          url && (
+                            <li key={id} className="indent-4">
+                              <NavLink
+                                to={url.split('.com')[1]}
+                                className="text-xl"
+                              >
+                                {title}
+                              </NavLink>
+                            </li>
+                          )
+                      )}
+                    </ul>
+                  )}
+                </li>
+              )
+          )}
         </ul>
         <div>
           <NavLink to="/account/orders" className="flex gap-x-2 py-4 border-b">
@@ -112,5 +160,40 @@ export default function Header({ menu }: MenuProp) {
         </div>
       </SideDrawer>
     </header>
+  );
+}
+
+function MegaNav({ menuChildItems }: { menuChildItems: MenuItem[] }) {
+  return (
+    <div className="absolute opacity-0 invisible top-heightHeight left-0 w-full bg-white text-black lg:peer-hover:opacity-100 lg:peer-hover:visible hover:opacity-100 hover:visible transition-opacity duration-300">
+      <div className="container grid grid-cols-6 gap-4">
+        <div className="col-span-2 bg-blue-400">
+          <h2>
+            <NavLink to="/collections" className="text-3xl">
+              Shop
+            </NavLink>
+          </h2>
+          <ul className="">
+            {menuChildItems.map(
+              ({ id, url, title }) =>
+                url && (
+                  <li key={id} className="uppercase">
+                    <NavLink
+                      to={url.split('.com')[1]}
+                      className="flex items-center font-medium text-3xl"
+                    >
+                      {title}
+                      <MdChevronRight size={30} className="ml-auto" />
+                    </NavLink>
+                  </li>
+                )
+            )}
+          </ul>
+        </div>
+        <div className="col-span-4 bg-green-300">
+          <h2 className="cursor-default">Image</h2>
+        </div>
+      </div>
+    </div>
   );
 }

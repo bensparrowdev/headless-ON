@@ -1,4 +1,4 @@
-import { type LinksFunction } from '@remix-run/node';
+import type { LinksFunction, LoaderFunction } from '@remix-run/node';
 import {
   Links,
   Meta,
@@ -20,7 +20,7 @@ export const links: LinksFunction = () => [
   { rel: 'stylesheet', href: stylesheet },
 ];
 
-export const loader = async () => {
+export const loader: LoaderFunction = async () => {
   const data = await gql(`
    {
       header: menu(handle: "main-menu") {
@@ -28,6 +28,11 @@ export const loader = async () => {
           id
           title
           url
+          items {
+            id
+            title
+            url
+          }
         }
       }
       footer: menu(handle: "footer") {
@@ -45,6 +50,7 @@ export const loader = async () => {
 
 export function Layout({ children }: { children: React.ReactNode }) {
   const { data } = useLoaderData<typeof loader>();
+
   return (
     <html lang="en">
       <head>

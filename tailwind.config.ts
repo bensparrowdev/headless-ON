@@ -15,6 +15,9 @@ export default {
         redAccent: '#E2373E',
         greenAccent: '#157F1F',
       },
+      inset: {
+        heightHeight: '105px',
+      },
     },
   },
   plugins: [],
