@@ -42,6 +42,26 @@ export const loader: LoaderFunction = async () => {
           url
         }
       }
+      megaMenu: metaobjects(first: 3, type: "header_footer_data") {
+        edges {
+          node {
+            fields {
+              key
+              value
+              reference {
+                ... on MediaImage {
+                  image {
+                    url
+                    altText
+                    id
+                  }
+                }
+                __typename
+              }
+            }
+          }
+        }
+      }
     }
   `);
 
@@ -67,7 +87,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
           countryIsoCode="GB"
           languageIsoCode="EN"
         >
-          <Header menu={data.header} />
+          <Header menu={data.header} megaMenu={data.megaMenu} />
           {children}
           <Footer menu={data.footer} />
           <ScrollRestoration />

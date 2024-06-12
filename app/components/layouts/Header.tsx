@@ -13,9 +13,17 @@ import SideDrawer from '../SideDrawer';
 import type {
   Menu,
   MenuItem,
+  MetaobjectConnection,
+  MetaobjectField,
 } from '@shopify/hydrogen-react/storefront-api-types';
 
-export default function Header({ menu }: { menu: Menu }) {
+export default function Header({
+  menu,
+  megaMenu,
+}: {
+  menu: Menu;
+  megaMenu: MetaobjectConnection;
+}) {
   const [openMobileMenu, setOpenMobileMenu] = useState<boolean>(false);
   const [isItemOpen, setIsItemOpen] = useState<boolean>(false);
 
@@ -58,7 +66,9 @@ export default function Header({ menu }: { menu: Menu }) {
                         ) : null}
                       </NavLink>
                     </li>
-                    {items.length > 0 && <MegaNav menuChildItems={items} />}
+                    {items.length > 0 && (
+                      <MegaNav menuChildItems={items} megaMenu={megaMenu} />
+                    )}
                   </Fragment>
                 )
             )}
@@ -163,24 +173,28 @@ export default function Header({ menu }: { menu: Menu }) {
   );
 }
 
-function MegaNav({ menuChildItems }: { menuChildItems: MenuItem[] }) {
+function MegaNav({
+  menuChildItems,
+  megaMenu,
+}: {
+  menuChildItems: MenuItem[];
+  megaMenu: MetaobjectConnection;
+}) {
   return (
     <div className="absolute opacity-0 invisible top-heightHeight left-0 w-full bg-white text-black lg:peer-hover:opacity-100 lg:peer-hover:visible hover:opacity-100 hover:visible transition-opacity duration-300">
-      <div className="container grid grid-cols-6 gap-4">
-        <div className="col-span-2 bg-blue-400">
-          <h2>
-            <NavLink to="/collections" className="text-3xl">
-              Shop
-            </NavLink>
-          </h2>
-          <ul className="">
+      <div className="container grid grid-cols-8 gap-4 pt-8">
+        <div className="col-span-2 mb-10 pb-2 pr-4 border-r-2 border-black">
+          <NavLink to="/collections" className="text-3xl mb-4 block">
+            Shop
+          </NavLink>
+          <ul className="flex flex-col gap-2">
             {menuChildItems.map(
               ({ id, url, title }) =>
                 url && (
                   <li key={id} className="uppercase">
                     <NavLink
                       to={url.split('.com')[1]}
-                      className="flex items-center font-medium text-3xl"
+                      className="flex items-center font-medium text-lg"
                     >
                       {title}
                       <MdChevronRight size={30} className="ml-auto" />
@@ -190,8 +204,24 @@ function MegaNav({ menuChildItems }: { menuChildItems: MenuItem[] }) {
             )}
           </ul>
         </div>
-        <div className="col-span-4 bg-green-300">
+        <div className="col-span-6 mb-2 bg-green-300">
           <h2 className="cursor-default">Image</h2>
+          <div className="flex">
+            {megaMenu.edges.map(({ node }) =>
+              node.fields.map(({ key, value, reference }: MetaobjectField) =>
+                reference && reference.__typename === 'MediaImage' ? (
+                  <div key={key} className="flex flex-col relative">
+                    <img
+                      src={reference.image?.url}
+                      alt={reference.image?.altText || ''}
+                    />
+                  </div>
+                ) : (
+                  <span key={key}>{value}</span>
+                )
+              )
+            )}
+          </div>
         </div>
       </div>
     </div>
