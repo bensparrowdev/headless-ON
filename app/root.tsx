@@ -17,7 +17,7 @@ import stylesheet from '~/tailwind.css?url';
 import { ShopifyProvider } from '@shopify/hydrogen-react';
 
 export const links: LinksFunction = () => [
-  { rel: 'stylesheet', href: stylesheet },
+  { rel: 'stylesheet', href: stylesheet, as: 'document' },
 ];
 
 export const loader: LoaderFunction = async () => {
@@ -45,6 +45,7 @@ export const loader: LoaderFunction = async () => {
       megaMenu: metaobjects(first: 3, type: "header_footer_data") {
         edges {
           node {
+            id
             fields {
               key
               value

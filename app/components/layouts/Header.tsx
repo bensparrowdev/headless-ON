@@ -183,7 +183,7 @@ function MegaNav({
   return (
     <div className="absolute opacity-0 invisible top-heightHeight left-0 w-full bg-white text-black lg:peer-hover:opacity-100 lg:peer-hover:visible hover:opacity-100 hover:visible transition-opacity duration-300">
       <div className="container grid grid-cols-8 gap-4 pt-8">
-        <div className="col-span-2 mb-10 pb-2 pr-4 border-r-2 border-black">
+        <div className="col-span-2 mb-10 pb-2 pr-4">
           <NavLink to="/collections" className="text-3xl mb-4 block">
             Shop
           </NavLink>
@@ -204,23 +204,37 @@ function MegaNav({
             )}
           </ul>
         </div>
-        <div className="col-span-6 mb-2 bg-green-300">
-          <h2 className="cursor-default">Image</h2>
-          <div className="flex">
-            {megaMenu.edges.map(({ node }) =>
-              node.fields.map(({ key, value, reference }: MetaobjectField) =>
-                reference && reference.__typename === 'MediaImage' ? (
-                  <div key={key} className="flex flex-col relative">
-                    <img
-                      src={reference.image?.url}
-                      alt={reference.image?.altText || ''}
-                    />
-                  </div>
-                ) : (
-                  <span key={key}>{value}</span>
-                )
-              )
-            )}
+        <div className="col-span-6 mb-2">
+          <div className="flex gap-x-1">
+            {megaMenu.edges.map(({ node }) => (
+              <div
+                key={node.id}
+                className="flex flex-col relative aspect-[4/5] w-1/4 p-5 items-center justify-end"
+              >
+                {node.fields.map(
+                  ({ key, value, reference }: MetaobjectField) => {
+                    if (key !== 'category_collection') {
+                      return reference &&
+                        reference.__typename === 'MediaImage' ? (
+                        <img
+                          src={reference.image?.url}
+                          alt={reference.image?.altText || ''}
+                          key={key}
+                          className="w-full h-full absolute top-0 left-0 object-cover object-center brightness-75"
+                        />
+                      ) : (
+                        <span
+                          key={key}
+                          className="z-10 uppercase text-lg text-white"
+                        >
+                          {value}
+                        </span>
+                      );
+                    }
+                  }
+                )}
+              </div>
+            ))}
           </div>
         </div>
       </div>
