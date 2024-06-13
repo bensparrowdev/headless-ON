@@ -1,4 +1,4 @@
-import { Fragment, useState } from 'react';
+import { Fragment, useEffect, useState } from 'react';
 import { NavLink } from '@remix-run/react';
 import {
   MdAccountCircle,
@@ -26,6 +26,7 @@ export default function Header({
 }) {
   const [openMobileMenu, setOpenMobileMenu] = useState<boolean>(false);
   const [isItemOpen, setIsItemOpen] = useState<boolean>(false);
+  const [isScrolled, setIsScrolled] = useState<boolean>(false);
 
   const handleMenuOpen = () => {
     setOpenMobileMenu((openMobileMenu) => !openMobileMenu);
@@ -35,12 +36,30 @@ export default function Header({
     setIsItemOpen((isItemOpen) => !isItemOpen);
   };
 
+  const handleScroll = () => {
+    const offset = window.scrollY;
+    if (offset > 100) {
+      setIsScrolled(true);
+    } else {
+      setIsScrolled(false);
+    }
+  };
+
+  useEffect(() => {
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
+
   return (
     <header className="fixed top-0 left-0 right-0 z-20">
       <div className="w-full text-center p-2 bg-black text-white">
         <small>Free shipping on orders over £50</small>
       </div>
-      <nav className="relative w-full text-white group hover:bg-white hover:text-black transition-all duration-300">
+      <nav
+        className={`relative w-full group hover:bg-white hover:text-black transition-all duration-150 ${
+          isScrolled ? 'bg-white text-black' : 'bg-transparent text-white'
+        }`}
+      >
         <div className="container grid grid-cols-[1fr_200px_1fr] gap-x-4 items-center px-5">
           <ul className="flex h-full gap-x-4 gap-y-2 items-center justify-start">
             <li className="lg:hidden">
@@ -54,11 +73,11 @@ export default function Header({
               ({ id, url, title, items }) =>
                 url && (
                   <Fragment key={id}>
-                    <li className="hidden lg:flex items-center relative uppercase h-full group/li peer">
-                      <span className="absolute top-8 opacity-0 h-[2px] w-0 bg-black group-hover/li:w-full group-hover/li:opacity-100 transition-all duration-300 ease-in-out"></span>
+                    <li className="hidden lg:flex flex-col justify-center items-start uppercase h-full group/li peer">
+                      <span className="opacity-0 h-[2px] w-0 bg-black group-hover/li:w-full group-hover/li:opacity-100 transition-all duration-300 ease-in-out"></span>
                       <NavLink
                         to={url.split('.com')[1]}
-                        className="inline-flex items-center"
+                        className="inline-flex items-center py-2"
                       >
                         {title}
                         {items.length ? (
@@ -79,7 +98,9 @@ export default function Header({
               src="/ON-logo.svg"
               alt="Optimum Nutrition logo"
               width="192"
-              className="flex items-center w-48 invert group-hover:invert-0 transition-all duration-300"
+              className={`flex items-center w-48 group-hover:invert-0 transition-all duration-300 ${
+                isScrolled ? 'invert-0' : 'invert'
+              }`}
             />
           </NavLink>
 
@@ -182,7 +203,7 @@ function MegaNav({
 }) {
   return (
     <div className="absolute opacity-0 invisible top-heightHeight left-0 w-full bg-white text-black lg:peer-hover:opacity-100 lg:peer-hover:visible hover:opacity-100 hover:visible transition-opacity duration-300">
-      <div className="container grid grid-cols-8 gap-4 pt-8">
+      <div className="container grid grid-cols-8 gap-4 pt-8 px-5">
         <div className="col-span-2 mb-10 pb-2 pr-4">
           <NavLink to="/collections" className="text-3xl mb-4 block">
             Shop
@@ -194,7 +215,7 @@ function MegaNav({
                   <li key={id} className="uppercase">
                     <NavLink
                       to={url.split('.com')[1]}
-                      className="flex items-center font-medium text-lg"
+                      className="flex items-center font-medium text-lg hover:text-redAccent transition-colors"
                     >
                       {title}
                       <MdChevronRight size={30} className="ml-auto" />
@@ -209,27 +230,51 @@ function MegaNav({
             {megaMenu.edges.map(({ node }) => (
               <div
                 key={node.id}
-                className="flex flex-col relative aspect-[4/5] w-1/4 p-5 items-center justify-end"
+                className="flex flex-col text-center relative aspect-[4/5] w-1/4 p-5 items-center justify-end"
               >
                 {node.fields.map(
                   ({ key, value, reference }: MetaobjectField) => {
-                    if (key !== 'category_collection') {
-                      return reference &&
-                        reference.__typename === 'MediaImage' ? (
-                        <img
-                          src={reference.image?.url}
-                          alt={reference.image?.altText || ''}
-                          key={key}
-                          className="w-full h-full absolute top-0 left-0 object-cover object-center brightness-75"
-                        />
-                      ) : (
-                        <span
-                          key={key}
-                          className="z-10 uppercase text-lg text-white"
-                        >
-                          {value}
-                        </span>
-                      );
+                    switch (key) {
+                      case 'category_collection':
+                        return (
+                          reference &&
+                          reference.__typename === 'Collection' && (
+                            <NavLink
+                              to={`/collection/${reference.handle}`}
+                              key={key}
+                              className="absolute top-0 left-0 w-full h-full object-cover object-center z-20 peer"
+                              aria-label={`Link to collection ${reference.handle}`}
+                            ></NavLink>
+                          )
+                        );
+                      case 'category_image':
+                        return reference &&
+                          reference.__typename === 'MediaImage' ? (
+                          <img
+                            src={reference.image?.url}
+                            alt={reference.image?.altText || ''}
+                            key={key}
+                            className="absolute top-0 left-0 w-full h-full object-cover object-center brightness-[.6]"
+                          />
+                        ) : (
+                          <span
+                            key={key}
+                            className="z-10 uppercase text-lg text-white"
+                          >
+                            {value}
+                          </span>
+                        );
+                      case 'category_text':
+                        return (
+                          <span
+                            key={key}
+                            className="z-10 uppercase text-lg font-bold text-white peer-hover:text-redAccent transition-colors"
+                          >
+                            {value}
+                          </span>
+                        );
+                      default:
+                        return null;
                     }
                   }
                 )}
