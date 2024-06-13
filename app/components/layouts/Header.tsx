@@ -12,10 +12,10 @@ import { RiMenu4Fill } from 'react-icons/ri';
 import SideDrawer from '../SideDrawer';
 import type {
   Menu,
-  MenuItem,
   MetaobjectConnection,
-  MetaobjectField,
 } from '@shopify/hydrogen-react/storefront-api-types';
+import MegaMenu from './MegaMenu';
+import SearchBox from './SearchBox';
 
 export default function Header({
   menu,
@@ -27,6 +27,7 @@ export default function Header({
   const [openMobileMenu, setOpenMobileMenu] = useState<boolean>(false);
   const [isItemOpen, setIsItemOpen] = useState<boolean>(false);
   const [isScrolled, setIsScrolled] = useState<boolean>(false);
+  const [isSearchOpen, setIsSearchOpen] = useState<boolean>(false);
 
   const handleMenuOpen = () => {
     setOpenMobileMenu((openMobileMenu) => !openMobileMenu);
@@ -45,6 +46,10 @@ export default function Header({
     }
   };
 
+  const handleOpenSearch = () => {
+    setIsSearchOpen((isSearchOpen) => !isSearchOpen);
+  };
+
   useEffect(() => {
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
@@ -57,7 +62,9 @@ export default function Header({
       </div>
       <nav
         className={`relative w-full group hover:bg-white hover:text-black transition-all duration-150 ${
-          isScrolled ? 'bg-white text-black' : 'bg-transparent text-white'
+          isScrolled || isSearchOpen
+            ? 'bg-white text-black'
+            : 'bg-transparent text-white'
         }`}
       >
         <div className="container grid grid-cols-[1fr_200px_1fr] gap-x-4 items-center px-5">
@@ -86,7 +93,7 @@ export default function Header({
                       </NavLink>
                     </li>
                     {items.length > 0 && (
-                      <MegaNav menuChildItems={items} megaMenu={megaMenu} />
+                      <MegaMenu menuChildItems={items} megaMenu={megaMenu} />
                     )}
                   </Fragment>
                 )
@@ -99,13 +106,18 @@ export default function Header({
               alt="Optimum Nutrition logo"
               width="192"
               className={`flex items-center w-48 group-hover:invert-0 transition-all duration-300 ${
-                isScrolled ? 'invert-0' : 'invert'
+                isScrolled || isSearchOpen ? 'invert-0' : 'invert'
               }`}
             />
           </NavLink>
 
           <div className="flex flex-wrap gap-2 items-center justify-end">
-            <MdOutlineSearch size={25} title="magnifying glass icon" />
+            <MdOutlineSearch
+              size={25}
+              title="magnifying glass icon"
+              onClick={handleOpenSearch}
+              className="cursor-pointer"
+            />
             <MdAccountCircle
               size={25}
               title="person icon"
@@ -114,6 +126,7 @@ export default function Header({
             <MdOutlineShoppingBag size={25} title="shopping bag icon" />
           </div>
         </div>
+        <SearchBox open={isSearchOpen} />
       </nav>
 
       <SideDrawer left={true} open={openMobileMenu}>
@@ -122,7 +135,7 @@ export default function Header({
             size={30}
             title="cross icon to close"
             onClick={handleMenuOpen}
-            className={`transition-all duration-500 ease-in-out cursor-pointer ${
+            className={`transition-all duration-500 ease-in-out cursor-pointer hover:fill-redAccent ${
               openMobileMenu ? '' : 'rotate-[360deg]'
             }`}
           />
@@ -191,98 +204,5 @@ export default function Header({
         </div>
       </SideDrawer>
     </header>
-  );
-}
-
-function MegaNav({
-  menuChildItems,
-  megaMenu,
-}: {
-  menuChildItems: MenuItem[];
-  megaMenu: MetaobjectConnection;
-}) {
-  return (
-    <div className="absolute opacity-0 invisible top-heightHeight left-0 w-full bg-white text-black lg:peer-hover:opacity-100 lg:peer-hover:visible hover:opacity-100 hover:visible transition-opacity duration-300">
-      <div className="container grid grid-cols-8 gap-4 pt-8 px-5">
-        <div className="col-span-2 mb-10 pb-2 pr-4">
-          <NavLink to="/collections" className="text-3xl mb-4 block">
-            Shop
-          </NavLink>
-          <ul className="flex flex-col gap-2">
-            {menuChildItems.map(
-              ({ id, url, title }) =>
-                url && (
-                  <li key={id} className="uppercase">
-                    <NavLink
-                      to={url.split('.com')[1]}
-                      className="flex items-center font-medium text-lg hover:text-redAccent transition-colors"
-                    >
-                      {title}
-                      <MdChevronRight size={30} className="ml-auto" />
-                    </NavLink>
-                  </li>
-                )
-            )}
-          </ul>
-        </div>
-        <div className="col-span-6 mb-2">
-          <div className="flex gap-x-1">
-            {megaMenu.edges.map(({ node }) => (
-              <div
-                key={node.id}
-                className="flex flex-col text-center relative aspect-[4/5] w-1/4 p-5 items-center justify-end"
-              >
-                {node.fields.map(
-                  ({ key, value, reference }: MetaobjectField) => {
-                    switch (key) {
-                      case 'category_collection':
-                        return (
-                          reference &&
-                          reference.__typename === 'Collection' && (
-                            <NavLink
-                              to={`/collection/${reference.handle}`}
-                              key={key}
-                              className="absolute top-0 left-0 w-full h-full object-cover object-center z-20 peer"
-                              aria-label={`Link to collection ${reference.handle}`}
-                            ></NavLink>
-                          )
-                        );
-                      case 'category_image':
-                        return reference &&
-                          reference.__typename === 'MediaImage' ? (
-                          <img
-                            src={reference.image?.url}
-                            alt={reference.image?.altText || ''}
-                            key={key}
-                            className="absolute top-0 left-0 w-full h-full object-cover object-center brightness-[.6]"
-                          />
-                        ) : (
-                          <span
-                            key={key}
-                            className="z-10 uppercase text-lg text-white"
-                          >
-                            {value}
-                          </span>
-                        );
-                      case 'category_text':
-                        return (
-                          <span
-                            key={key}
-                            className="z-10 uppercase text-lg font-bold text-white peer-hover:text-redAccent transition-colors"
-                          >
-                            {value}
-                          </span>
-                        );
-                      default:
-                        return null;
-                    }
-                  }
-                )}
-              </div>
-            ))}
-          </div>
-        </div>
-      </div>
-    </div>
   );
 }
