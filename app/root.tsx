@@ -50,6 +50,7 @@ export const loader: LoaderFunction = async () => {
               key
               value
               reference {
+                __typename
                 ... on MediaImage {
                   image {
                     url
@@ -57,7 +58,9 @@ export const loader: LoaderFunction = async () => {
                     id
                   }
                 }
-                __typename
+                ... on Collection {
+                  handle
+                }
               }
             }
           }
