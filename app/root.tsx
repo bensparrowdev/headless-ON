@@ -15,13 +15,14 @@ import Header from './components/layouts/Header';
 import Footer from './components/layouts/Footer';
 import stylesheet from '~/tailwind.css?url';
 import { ShopifyProvider } from '@shopify/hydrogen-react';
+import { QueryRoot } from '@shopify/hydrogen-react/storefront-api-types';
 
 export const links: LinksFunction = () => [
   { rel: 'stylesheet', href: stylesheet, as: 'document' },
 ];
 
 export const loader: LoaderFunction = async () => {
-  const data = await gql(`
+  const data: QueryRoot = await gql(`
    {
       header: menu(handle: "main-menu") {
         items {

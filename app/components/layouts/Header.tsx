@@ -24,10 +24,10 @@ export default function Header({
   menu: Menu;
   megaMenu: MetaobjectConnection;
 }) {
-  const [openMobileMenu, setOpenMobileMenu] = useState<boolean>(false);
-  const [isItemOpen, setIsItemOpen] = useState<boolean>(false);
-  const [isScrolled, setIsScrolled] = useState<boolean>(false);
-  const [isSearchOpen, setIsSearchOpen] = useState<boolean>(false);
+  const [openMobileMenu, setOpenMobileMenu] = useState(false);
+  const [isItemOpen, setIsItemOpen] = useState(false);
+  const [isScrolled, setIsScrolled] = useState(false);
+  const [isSearchOpen, setIsSearchOpen] = useState(false);
 
   const handleMenuOpen = () => {
     setOpenMobileMenu((openMobileMenu) => !openMobileMenu);
@@ -112,12 +112,21 @@ export default function Header({
           </NavLink>
 
           <div className="flex flex-wrap gap-2 items-center justify-end">
-            <MdOutlineSearch
-              size={25}
-              title="magnifying glass icon"
-              onClick={handleOpenSearch}
-              className="cursor-pointer"
-            />
+            {isSearchOpen ? (
+              <MdClose
+                size={25}
+                title="close search icon"
+                onClick={handleOpenSearch}
+                className="cursor-pointer"
+              />
+            ) : (
+              <MdOutlineSearch
+                size={25}
+                title="magnifying glass icon"
+                onClick={handleOpenSearch}
+                className="cursor-pointer"
+              />
+            )}
             <MdAccountCircle
               size={25}
               title="person icon"

@@ -14,7 +14,7 @@ export default function MegaMenu({
   megaMenu: MetaobjectConnection;
 }) {
   return (
-    <div className="absolute opacity-0 invisible top-heightHeight left-0 w-full bg-white text-black lg:peer-hover:opacity-100 lg:peer-hover:visible hover:opacity-100 hover:visible transition-opacity duration-300">
+    <div className="absolute opacity-0 invisible top-heightHeight left-0 w-0 bg-white text-black peer-hover:opacity-100 peer-hover:visible lg:peer-hover:w-full hover:opacity-100 hover:visible hover:w-full transition-opacity duration-300 z-20">
       <div className="container grid grid-cols-8 gap-4 pt-8 px-5">
         <div className="col-span-2 mb-10 pb-2 pr-4">
           <NavLink to="/collections" className="text-3xl mb-4 block">
